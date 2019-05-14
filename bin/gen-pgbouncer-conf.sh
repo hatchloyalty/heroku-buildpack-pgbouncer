@@ -53,22 +53,23 @@ do
   DB_MD5_PASS="md5"`echo -n ${DB_PASS}${DB_USER} | md5sum | awk '{print $1}'`
 
   CLIENT_DB_NAME="db${n}"
+  CLIENT_DB_USER="${CLIENT_DB_NAME}_user${n}"
 
   echo "Setting ${POSTGRES_URL}_PGBOUNCER config var"
 
   if [ "$PGBOUNCER_PREPARED_STATEMENTS" == "false" ]
   then
-    export ${POSTGRES_URL}_PGBOUNCER=postgres://$DB_USER:$DB_PASS@127.0.0.1:6000/$CLIENT_DB_NAME?prepared_statements=false
+    export ${POSTGRES_URL}_PGBOUNCER=postgres://$CLIENT_DB_USER:$DB_PASS@127.0.0.1:6000/$CLIENT_DB_NAME?prepared_statements=false
   else
-    export ${POSTGRES_URL}_PGBOUNCER=postgres://$DB_USER:$DB_PASS@127.0.0.1:6000/$CLIENT_DB_NAME
+    export ${POSTGRES_URL}_PGBOUNCER=postgres://$CLIENT_DB_USER:$DB_PASS@127.0.0.1:6000/$CLIENT_DB_NAME
   fi
 
   cat >> /app/vendor/pgbouncer/users.txt << EOFEOF
-"$DB_USER" "$DB_MD5_PASS"
+"$CLIENT_DB_USER" "$DB_MD5_PASS"
 EOFEOF
 
   cat >> /app/vendor/pgbouncer/pgbouncer.ini << EOFEOF
-$CLIENT_DB_NAME= host=$DB_HOST dbname=$DB_NAME port=$DB_PORT
+$CLIENT_DB_NAME= host=$DB_HOST dbname=$DB_NAME port=$DB_PORT user=$DB_USER
 EOFEOF
 
   let "n += 1"
