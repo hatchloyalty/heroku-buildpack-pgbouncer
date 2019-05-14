@@ -66,7 +66,7 @@ do
   fi
 
   cat >> /app/vendor/pgbouncer/users_hba.txt << EOFEOF
-host "$CLIENT_DB_NAME" "$CLIENT_DB_USER" 127.0.0.1 md5
+host ${CLIENT_DB_NAME} ${CLIENT_DB_USER} 127.0.0.1 md5
 EOFEOF
 
   cat >> /app/vendor/pgbouncer/pgbouncer.ini << EOFEOF
