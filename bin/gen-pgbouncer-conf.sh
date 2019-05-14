@@ -13,10 +13,11 @@ fi
 
 cat >> /app/vendor/pgbouncer/pgbouncer.ini << EOFEOF
 [pgbouncer]
+verbose = ${PGBOUNCER_VERBOSE:-0}
 listen_addr = 127.0.0.1
 listen_port = 6000
-auth_type = md5
-auth_file = /app/vendor/pgbouncer/users.txt
+auth_type = hba
+auth_file = /app/vendor/pgbouncer/users_hba.txt
 server_tls_sslmode = prefer
 server_tls_protocols = secure
 server_tls_ciphers = HIGH:!ADH:!AECDH:!LOW:!EXP:!MD5:!3DES:!SRP:!PSK:@STRENGTH
@@ -40,7 +41,7 @@ log_pooler_errors = ${PGBOUNCER_LOG_POOLER_ERRORS:-1}
 stats_period = ${PGBOUNCER_STATS_PERIOD:-60}
 ignore_startup_parameters = ${PGBOUNCER_IGNORE_STARTUP_PARAMETERS}
 query_wait_timeout = ${PGBOUNCER_QUERY_WAIT_TIMEOUT:-120}
-verbose = ${PGBOUNCER_VERBOSE:-0}
+
 
 [databases]
 EOFEOF
@@ -64,8 +65,8 @@ do
     export ${POSTGRES_URL}_PGBOUNCER=postgres://$CLIENT_DB_USER:$DB_PASS@127.0.0.1:6000/$CLIENT_DB_NAME
   fi
 
-  cat >> /app/vendor/pgbouncer/users.txt << EOFEOF
-"$CLIENT_DB_USER" "$DB_MD5_PASS"
+  cat >> /app/vendor/pgbouncer/users_hba.txt << EOFEOF
+host "$CLIENT_DB_NAME" "$CLIENT_DB_USER" 127.0.0.1 md5
 EOFEOF
 
   cat >> /app/vendor/pgbouncer/pgbouncer.ini << EOFEOF
